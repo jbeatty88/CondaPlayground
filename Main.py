@@ -1,11 +1,10 @@
-import GoogleCodeJam2019
-from MinStack import MinStack
-from LeetCode30Day import LeetCode
+from ByuCompetetiveProgramming import BC
 from GoogleCodeJam2019 import CodeJam
+from LeetCode import LeetCode, ListNode
 
 if __name__ == '__main__':
     codeJam = CodeJam()
     lc = LeetCode()
+    bc = BC()
 
-    print(lc.findMaxLength([0,0,1,0,0,0,1,1]))
-    # print()
+    
