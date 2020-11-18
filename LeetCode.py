@@ -757,3 +757,50 @@ class LeetCode:
         memo = {}
         # helper function to add memo dictionary to function
         return self.nth_stair(n, m, memo)
+
+    def shuffle(self, nums: List[int], n: int) -> List[int]:
+        ''' 1470 Shuffle The Array
+        Given the array 'nums' consisting of '2n' elements in the form [x1, x2, ..., xn, y1, y2, ..., yn]
+        return the array in the form [x1, y1, x2, y2, ..., xn, yn]
+
+        Args:
+            nums: array of 2n elements
+            n: Number of x and y elements in array
+
+        Example:
+            Input: nums = [2,5,1,3,4,7], n = 3
+            Output: [2,3,5,4,1,7]
+
+        Returns: the array in the form [x1, y1, x2, y2, ..., xn, yn]
+        '''
+        ## BRUTE FORCE ##
+        solution = []
+        # x_elem = nums[:n]
+        # y_elem = nums[n:]
+        # for i in range(n):
+        #     solution.append(x_elem[i])
+        #     solution.append(y_elem[i])
+
+        ## FASTEST RUNTIME ##
+        for i in range(n):
+            solution.append(nums[i])
+            solution.append(nums[i+n])
+
+        return solution
+
+    def kidsWithCandies(self, candies: List[int], extraCandies: int) -> List[bool]:
+        '''
+        Given the array candies and the integer extraCandies, where candies[i]
+        represents the number of candies that the ith kid has.
+
+        For each kid check if there is a way to distribute extraCandies among the
+        kids such that he or she can have the greatest number of candies among them.
+        Notice that multiple kids can have the greatest number of candies.
+
+        Args:
+            candies:
+            extraCandies:
+
+        Returns:
+
+        '''
