@@ -7,4 +7,4 @@ if __name__ == '__main__':
     lc = LeetCode()
     bc = BC()
 
-    
+    print(lc.fib_with_memoization(100))

@@ -667,3 +667,93 @@ class LeetCode:
                 # Add the width to the new line
                 chars_in_line += widths[letter_idx]
         return [lines, chars_in_line]
+
+    def placeNQueens(self, n, board):
+        def is_safe(i, j, b):
+            for c in range(len(b)):
+                for r in range(len(b)):
+                    # check if i,j share row with any queen
+                    if b[c][r] == 'q' and i == c and j != r:
+                        return False
+                    # check if i,j share column with any queen
+                    elif b[c][r] == 'q' and j == r and i != c:
+                        return False
+                    # check if i,j share diagonal with any queen
+                    elif (i + j == c + r or i - j == c - r) and b[c][r] == 'q':
+                        return False
+            return True
+
+        def n_queens(r, num, b):
+            # base case, when queens have been placed in all rows return
+            if r == num:
+                return True, b
+            # else in r-th row, check for every box whether it is suitable to place queen
+            for i in range(num):
+                if is_safe(r, i, b):
+                    # if i-th columns is safe to place queen, place the queen there and check recursively for other rows
+                    b[r][i] = 'q'
+                    okay, newboard = n_queens(r + 1, num, b)
+                    # if all next queens were placed correctly, recursive call should return true, and we should return true here too
+                    if okay:
+                        return True, newboard
+                    # else this is not a suitable box to place queen, and we should check for next box
+                    b[r][i] = '-'
+            return False, b
+
+        # USE THIS IN MAIN WHEN RUNNING TO SEE RESULTS
+        # n = 4
+        # board = [["-" for _ in range(n)] for _ in range(n)]
+        # qBoard = lc.placeNQueens(n, board)
+        # qBoard = "\n".join(["".join(x) for x in qBoard])
+        # print(qBoard)
+        return n_queens(0, n, board)[1]
+
+    # Global dictionary to allow memoization (storing results)
+    fib_mem = {}
+
+    # ^^^^^^^^^^^
+    def fib_with_memoization(self, n):
+        """Calculate Fibonacci using memoization
+
+        Complexity:
+            T: O(n) -> To evaluate fib(n) we need the results of fib(n-1) and fib(n-2)
+                but fib(n-2) would have already been evaluated from the call to fib(n-1)'s
+                recursive call. Thus it's value would already be available and would not have
+                to be recomputed. Getting the value from the hashtable is O(1)
+
+        Args:
+            n: The Fibonacci number we want to get
+
+        Returns: The nth Fibonacci number
+
+        """
+
+        if n == 0:  # Base case 1
+            return 0
+        if n == 1:  # Base case 2
+            return 1
+        elif n in self.fib_mem:  # If we've already computed a value, don't recompute.
+            return self.fib_mem[n]  # Get the value stored previously
+        else:  # If we haven't computed this value yet, compute and store for later uses
+            self.fib_mem[n] = self.fib_with_memoization(n - 1) + self.fib_with_memoization(n - 2)
+            return self.fib_mem[n]
+
+    def nth_stair(self, n, m, memo):
+        if n == 0:  # base case of when there is no stair
+            return 1
+        if n in memo:  # before recursive step check if result is memoized
+            return memo[n]
+        ways = 0
+        for i in range(1, m + 1):  # iterate over number of steps, we can take
+            # if steps remaining is smaller than the jump step, skip
+            if i <= n:
+                # recursive call with n i units lesser where i is the number of steps taken here
+                ways += self.nth_stair(n - i, m, memo)
+                # memoize result before returning
+        memo[n] = ways
+        return ways
+
+    def staircase(self, n, m):
+        memo = {}
+        # helper function to add memo dictionary to function
+        return self.nth_stair(n, m, memo)
