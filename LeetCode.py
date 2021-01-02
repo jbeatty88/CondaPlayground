@@ -1492,8 +1492,20 @@ class LeetCode:
                 if arr[i] > arr[j] and lis[i] < lis[j] + 1:
                     lis[i] = lis[j] + 1
 
-
         return max(lis)
 
     def canPermutePalindrome(self, s: str) -> bool:
+        ''' Palindrome Permutation
+
+        Given a string, determine if a permutation of the string could
+        form a palindrome.
+
+        Args:
+            s: (str) The string to check if is palindrome
+
+        Returns:
+            True: If the string is a palindrome
+            False: If the string is not a palindrome
+
+        '''
         pass
