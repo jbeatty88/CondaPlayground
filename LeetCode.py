@@ -6,8 +6,10 @@ import math
 import time
 from typing import List
 
-
 # Definition for singly-linked list.
+from pyparsing import unicode
+
+
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
@@ -20,6 +22,13 @@ class TreeNode:
         self.val = x
         self.left = None
         self.right = None
+
+
+class DfsTreeNode():
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 
 class PathNode:
@@ -164,12 +173,28 @@ class LeetCode:
         return longest_path
 
     def twoSum(self, nums: List[int], target: int) -> List[int]:
-        sol = []
-        for idx, num in enumerate(nums):
-            for idx2 in range(idx + 1, len(nums)):
-                if nums[idx] + nums[idx2] == target:
-                    return [idx, idx2]
-        return sol
+        """1 Two Sum
+
+        Given an array of integers nums and an integer target, return indices of the two numbers
+        such that they add up to target.
+
+        You may assume that each input would have exactly one solution. You may not use the same
+        element twice.
+
+        You can return the answer in any order
+
+        Args:
+            nums: (List[int]) Array of integers
+            target: (int) Sum target
+
+        Returns: (List[int]) List of numbers that sum to target
+
+        """
+        dict_map = {}
+        for i, num in enumerate(nums):
+            if num in dict_map:
+                return [dict_map[num], i]
+            dict_map[target - num] = i
 
     def tribonacci(self, n: int) -> int:
         trib = [0] * 100
@@ -225,33 +250,55 @@ class LeetCode:
         return people
 
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        """39 Combination Sum
+
+        Time Complexity: O(N^((T/M)+1))
+            - Total number of steps = number of nodes in the tree
+            - Linear to the number of nodes of the execution tree
+
+        Space Complexity: O(T/M)
+
+        Given an array of distinct integers, candidates, and a target integer, target, return
+        a list of all unique combinations of 'candidates' where the chosen numbers sum to target.
+        You may return the combinations in any order.
+
+        The same number may be chosen from candidates an unlimited number of times. Two combinations
+        are unique if the frequency of at least one of the chosen numbers is different.
+
+        It is guaranteed that the number of unique combinations that sum up to target is less than 150
+        combinations for the given input
+
+        Args:
+            candidates: (List[int]) Distinct Integer List
+            target: (int) target number
+
+        Returns: (List[int]) list of all unique combinations of candidates
+
+        """
         # Set so that the elements are unique
-        solutions = []
-        partial_solutions = []
+        results = []
 
-        for n in candidates:
-            if n < target:
-                partial_solutions.append([n])
-            elif n == target:
-                solutions.append([n])
+        def backtrack(remain, comb, start):
+            # Base Case: If we've reached the target sum
+            if remain == 0:
+                # Add this combination to the list
+                results.append(list(comb))
+            # Base Case: If we've exceeded our target sum
+            if remain < 0:
+                # Stop exploring this branch
+                return
 
-        while len(partial_solutions) > 0:
-            cur_ps = partial_solutions.pop(0)
-            for n in candidates:
-                tmp = cur_ps.copy()
-                if sum(tmp) + n < target:
-                    tmp.append(n)
-                    partial_solutions.append(tmp)
-                elif sum(tmp) + n == target:
-                    tmp.append(n)
-                    tmp.sort()
-                    solutions.append(tmp)
+            # Go through each combination branch
+            for i in range(start, len(candidates)):
+                # Add the number into the combination here
+                comb.append(candidates[i])
+                # Give the current number another chance
+                backtrack(remain - candidates[i], comb, i)
+                # Backtrack, remove the number from the combination
+                comb.pop()
 
-        # print(partial_solutions)
-        # print(solutions)
-
-        unique_sol = [list(x) for x in set(tuple(x) for x in solutions)]
-        return list(unique_sol)
+        backtrack(target, [], 0)
+        return results
 
     def lastStoneWeight(self, stones: List[int]) -> int:
         while len(stones) > 1:
@@ -608,6 +655,20 @@ class LeetCode:
                 l2 = l2.next
 
     def rotateString(self, A: str, B: str) -> bool:
+        """796 Rotate String
+
+        We are given two strings, A and B
+
+        A shift on A consists of taking string A and moving the leftmost
+        character to the rightmost position.
+
+        Args:
+            A: (str)
+            B: (str)
+
+        Returns: (bool) true or false
+
+        """
         # Concatenate A with itself and then search for B
         return len(A) == len(B) and B in (A + A)
 
@@ -640,7 +701,32 @@ class LeetCode:
         pass
 
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
-        pass
+        """56 Merge Intervals
+
+        Time Complexity: O(nlogn)
+            O(n) -> Linear scan of list after sort
+            O(nlogn) -> Sort
+
+        Args:
+            intervals: array of intervals
+
+        Returns: array of non-overlapping intervals
+
+        """
+        # Sort the intervals
+        intervals.sort(key=lambda interval: interval[0])
+        # Store the merged intervals
+        sol = []
+        for interval in intervals:
+            # If there are no intervals already added
+            # Or if the end of the last interval is less than the beginning of the current
+            # Append it to the list because there is no overlap
+            if not sol or sol[-1][1] < interval[0]:
+                sol.append(interval)
+            else:
+                # Replace the last number in the interval with the max between existing and new
+                sol[-1][1] = max(sol[-1][1], interval[1])
+        return sol
 
     def findMaximumXOR(self, nums: List[int]) -> int:
         pass
@@ -784,7 +870,7 @@ class LeetCode:
         ## FASTEST RUNTIME ##
         for i in range(n):
             solution.append(nums[i])
-            solution.append(nums[i+n])
+            solution.append(nums[i + n])
 
         return solution
 
@@ -798,9 +884,616 @@ class LeetCode:
         Notice that multiple kids can have the greatest number of candies.
 
         Args:
-            candies:
-            extraCandies:
+            candies: array, holds number of candies ith kid has
+            extraCandies: int, number of candies that can be distributed
+
+        Returns: boolean array, true: kid has greatest; falst: kid does not have greatest
+        '''
+
+        ## BRUTE FORCE ##
+        # arr_cpy = candies.copy()
+        # arr_cpy.sort()
+        # max_e = arr_cpy[len(arr_cpy) - 1]
+        # for i, k in enumerate(candies):
+        #     if max_e - candies[i] <= extraCandies:
+        #         candies[i] = True
+        #     else:
+        #         candies[i] = False
+        ## FASTEST SOLUTION ##
+        m = max(candies)
+        return [i + extraCandies >= m for i in candies]
+
+    def defangIPaddr(self, address: str) -> str:
+        ''' 1108 - Defanging an IP Address
+        Given a valid (IPv4) IP address, return a defanged version of that IP address.
+
+        A defanged IP address replaces every period "." with "[.]"
+
+        Args:
+            address: str; ip address to defang
+
+        Returns: str; defanged IP address
+        '''
+        ## MY SOLUTION
+        # return address.replace(".", "[.]")
+
+        ## FASTEST SOLUTION ##
+        x = ""
+        for i in address:
+            if i == ".":
+                x = x + "[.]"
+            else:
+                x = x + i
+        return x
+
+    def numIdenticalPairs(self, nums: List[int]) -> int:
+        ''' 1512 - Number of Good Pairs
+
+        Given an array of integers 'nums'
+
+        A pair (i, j) is called good if nums[i] == nums[j] and i < j
+
+        return the number of good pairs
+
+        Args:
+            nums: List[int]; array of numbers
+
+        Returns: (int) number of pairs
+        '''
+        ## MY SOLUTION ##
+        pairs = 0
+        nums_set = set(nums)
+        for n in nums_set:
+            pairs += nums.count(n) // 2
+        return pairs
+
+    def maskPII(self, S: str) -> str:
+        # Check if we have an email or number
+        if S.__contains__("@"):
+            # Convert to lower case
+            S = S.lower()
+            # Get first and last letters of first name
+            n1, leftover = S.split('@')
+            # 5 starts in between
+            mask = "{}*****{}@{}".format(n1[0], n1[-1], leftover)
+            return mask
+        else:
+            # Filter out everything but digits
+            nums = ''.join(n for n in S if n.isdigit())
+            # Create the general mask
+            mask = "***-***-{}".format(nums[-4:])
+            # Add to the mask if we have a country code
+            if len(nums) > 10:
+                return "+{}-".format('*' * (len(nums) - 10)) + mask
+            # Otherwise, return general mask
+            return mask
+
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        ''' 3. Longest Substring Without Repeating Characters
+
+        Given a string s, find the length of the longest substring without repeating characters.
+
+        Args:
+            s: (str) full string
+
+        Returns: (int) length of largest substring
+        '''
+        pass
+
+    def dietPlanPerformance(self, calories: List[int], k: int, lower: int, upper: int) -> int:
+        ''' 1176 Diet Plan Performance
+
+        Dieter consumes calories[i] calories on the i-th day.
+
+        Given an integer k, for every consecutive sequence of k days, they look at T, the total calories
+        consumed during that seqence of k days.
+            If T < lower, they performed poorly on their diet and lose 1 point
+            if T > upper, they performed well on their diet and gain 1 point
+            Otherwise, they performed normally and there is no change in points
+
+        Initially the dieter has 0 points. Return the total number of points the diter has after dieting
+        for calories.length days.
+
+        Args:
+            calories: (int arr) calories consumed on the i-th day
+            k: (int) sequence of days
+            lower: (int) bound for poor diet
+            upper: (int) bound for good diet
+
+        Returns: (int) total number of points the dieter has after dieting for calories.length days
+        '''
+        diet_score, T = 0, sum(calories[:k - 1])
+        for i in range(k - 1, len(calories)):
+            T += calories[i] - (calories[i - k] if i - k >= 0 else 0)
+            diet_score += T > upper
+            diet_score -= T < lower
+
+        return diet_score
+
+    def numKLenSubstrNoRepeats(self, S: str, K: int) -> int:
+        ''' 1100 Find K-Length Substrings With No Repreated Characters
+
+        Given a string, S, retur the number of substrings of length K with no repreated characters
+
+        Args:
+            S: (str) string
+            K: (int) length of substring
+
+        Returns:(int) number of substrings with no repeated characters
+        '''
+
+    def matrixBlockSum(self, mat: List[List[int]], K: int) -> List[List[int]]:
+        ''' 1314 Matrix Block Sum
+
+        Given a m * n matrix, mat, and an integer, k, return a matrix, answer,
+        where each answer[i][j] is the sum of all elements mat[r][c] for
+        i - k <= r <= i + K, j-k <= x <= j+K, and (r,c) is a valid position in
+        the matrix.
+
+        Args:
+            mat: (int[][]) m * n matrix
+            K: (int) radius to sum
+
+        Returns: (int[][]) m * n matrix with correct sums in each position
+
+        '''
+        m, n = len(mat), len(mat[0])
+        rangeSum = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(m):
+            for j in range(n):
+                rangeSum[i + 1][j + 1] = rangeSum[i + 1][j] + rangeSum[i][j + 1] - rangeSum[i][j] + mat[i][j]
+        ans = [[0] * n for _ in range(m)]
+        for i in range(m):
+            for j in range(n):
+                r1, c1, r2, c2 = max(0, i - K), max(0, j - K), min(m, i + K + 1), min(n, j + K + 1)
+                ans[i][j] = rangeSum[r2][c2] - rangeSum[r1][c2] - rangeSum[r2][c1] + rangeSum[r1][c1]
+        return ans
+
+    def minFallingPathSum(self, A: List[List[int]]) -> int:
+        ''' 931 Minimum Falling Path Sum
+
+        Given a square array of integers, A, we want the minimum sum of a falling path
+        through A. A Falling path starts at any element in the first row, and chooses
+        one element from each row. The next row's choice must be in a column that is
+        different from the previous rows column by at most one.
+
+        Args:
+            A: (List(int[])) array of integers
+
+        Returns: (int) Minimum sum of a falling path
+
+        '''
+        while len(A) >= 2:
+            r = A.pop()
+            for i in range(len(r)):
+                A[-1][i] += min(r[max(0, i - 1): min(len(r), i + 2)])
+        return min(A[0])
+
+    def knightProbability(self, N: int, K: int, r: int, c: int) -> float:
+        ''' 688 Knight Probability In Chessboard
+
+        On an N*N chessboard, a knight starts at the r-th row and c-th column
+        and attempts to make exactly K moves. The rows and columns are 0 indexed
+        so the top-left square is (0,0) and the bottom right is (N-1, N-1)
+
+        A chess knight has 8 possible moves it can make. Each move is two squares
+        in a cardinal direction, then one square in an orthogonal direction
+
+        Each time the knight is to move, it chooses one of 8 possible moves uniformly
+        (even if that move would take it off the board) and moves there.
+
+        The knight continues moving until it has made exactly K moves or has
+        moved off of the board
+
+        Return the probability that the knight remains on the board after it has
+        stopped moving
+
+        Args:
+            N: (int) Dimension for square N*N board
+            K: (int) Moves the knight makes
+            r: (int) Starting row
+            c: (int) Starting column
+
+        Returns: (float) Probability the knight remains on board after it stops moving
+
+        '''
+        pass
+
+    def maxDistance(self, grid: List[List[int]]) -> int:
+        ''' 1162 As Far From Land As Possible
+
+        Given an n*n grid containing only values 0 and 1, where 0 represents water
+        and 1 represents land, find a water cell such that its distance to the nearest
+        land cell is maximized, and return the distance. If no land or water exists in
+        the grid, return -1
+
+        Use Manhattan distance:
+            Distance between two cells (x0, y0) and (x1, y1) is |x0-x1| + |y0-y1|
+
+        Args:
+            grid: (List(int[])) n*n grid
+
+        Returns: (int) Maximum distance between a water cell and land cell
+
+        '''
+        pass
+
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        '''1631 Path With Minimum Effort
+
+        You are a hiker preparing for an upcoming hike. You are given 'heights', a 2D array
+        of size rows * columns where heights[row][col] represents the height of cell (row, col).
+        You are situated in the top-left cell (0,0) and you hope to travel to the bottom-right cell, (rows-1, columns-1)
+        You can move up, down, left, or right and you wish to find a route that requires the
+        minimum effort.
+
+
+
+        Args:
+            heights:
 
         Returns:
 
         '''
+        pass
+
+    def containsCycle(self, grid: List[List[str]]) -> bool:
+        ''' 1559 Detect Cycles in 2D Grid
+
+        Args:
+            grid:
+
+        Returns:
+
+        '''
+        pass
+
+    def shortestDistance(self, words: List[str], word1: str, word2: str) -> int:
+        pass
+
+    def maxDepth(self, root: TreeNode) -> int:
+        if not root:
+            return 0
+        return max(self.maxDepth(root.left) + 1, self.maxDepth(root.right) + 1)
+
+    def shortestDistance(self, words: List[str], word1: str, word2: str) -> int:
+        '''
+
+        Given a list of words and two words word1 and word2, return the shortest
+        distance between these two words in the list.
+        Args:
+            words:
+            word1:
+            word2:
+
+        Returns:
+
+        '''
+        pass
+
+    def rotate(self, matrix: List[List[int]]) -> None:
+        """48 Rotate Image
+
+        Time Complexity: O(N^2)
+            - Nested loop
+
+        Space Complexity: O(1)
+            - In place rotation
+
+        You are given an n x n 2D matrix representing an image, rotate the image by 90 degrees (clockwise)
+
+        You have to rotate the image in-place, which means you have to modify the input 2D matrix directly.
+        DO NOT allocate another 2D matrix and do the rotation.
+
+        Args:
+            matrix: n*n 2D matrix
+
+        Returns: nothing, just modify the matrix in-place instead
+
+        """
+        # Get the dimension of the n*n matrix
+        n = len(matrix[0])
+        for i in range(n // 2 + n % 2):
+            for j in range(n // 2):
+                # Rotate four rectangles working from outside inward
+                tmp = matrix[n - 1 - j][i]
+                matrix[n - 1 - j][i] = matrix[n - 1 - i][n - j - 1]
+                matrix[n - 1 - i][n - j - 1] = matrix[j][n - 1 - i]
+                matrix[j][n - 1 - i] = matrix[i][j]
+                matrix[i][j] = tmp
+        print(matrix)
+
+    def findMin(self, nums: List[int]) -> int:
+        """153 Find Minimum in Rotated Sorted Array
+
+        Time Complexity: O(logN)
+            - Binary Search: O(logN)
+
+        Space Complexity: O(1)
+
+        Suppose an array of length n sorted in ascending order is rotated between 1 and n times.
+
+        Args:
+            nums: (List[int]) Sorted rotated array
+
+        Returns: (int) Minimum element of nums
+
+        """
+        # IF only one element in nums, return that element
+        if len(nums) == 1:
+            return nums[0]
+
+        # Point to left and right side
+        left, right = 0, len(nums) - 1
+
+        # If last > first, no rotations took place
+        if nums[right] > nums[left]:
+            # The first element is the smalles
+            return nums[0]
+
+        # Otherwise, use binary search to find the smallest
+        while right >= left:
+            # Locate the middle element
+            mid = left + (right - left) // 2
+            # If this middle element > mid+1, then mid+1 is smallest
+            if nums[mid] > nums[mid + 1]:
+                return nums[mid + 1]
+
+            # If this middle element < mid-1, then mid-1 is the smallest
+            if nums[mid - 1] > nums[mid]:
+                return nums[mid]
+
+            # If the mid element > than first element, smallest value is on right side
+            if nums[mid] > nums[0]:
+                left = mid + 1
+            # If the mid element < the first element
+            else:
+                right = mid - 1
+
+    def findPeakElement(self, nums: List[int]) -> int:
+        """162 Find Peak Element
+
+        Time Complexity: O(logN)
+            - Binary Search: O(logN)
+
+        Space Complexity: O(1)
+
+        A peak element is an element that is striclty greater than its neightbors.
+
+        given an integer array, nums, find a peak element and return its index. If the array
+        contains multiple peaks, return the index to any of the peaks.
+
+        You may imagine that nums[-1] = nums[n] = -INF
+
+        Args:
+            nums: (List[int]) Array of integers
+
+        Returns: (int) The index of the peak
+
+        """
+        # Left and right pointers
+        left, right = 0, len(nums) - 1
+
+        while left < right:
+            # Get the middle of the range being considered
+            mid = (left + right) // 2
+            # If the middle value is greater than the next value
+            if nums[mid] > nums[mid + 1]:
+                # Search the left side
+                right = mid
+            else:
+                # Search the right side
+                left = mid + 1
+        return left
+
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        """54 Spiral Matrix
+
+        Given an m*n matrix, return all elements of the matrix in spiral order
+
+        Args:
+            matrix: (List[List[int]]) M*N Matrix
+
+        Returns: (List[int]) Elements of matrix in spiral order
+
+        """
+        pass
+
+    def maxProduct(self, nums: List[int]) -> int:
+        """ 152. Maximum Product Subarray
+
+        Time Complexity: O(N)
+            - One loop through N
+
+        Space Complexity: O(1)
+
+        Given an integer array nums, find the contiguous subarray within an array (containing at least on number)
+        which has the largest product
+
+        Args:
+            nums: (List[int]) Array of integers
+
+        Returns: (int) Largest product from contiguous subarray
+
+        """
+        if len(nums) == 0:
+            return 0
+
+        cur_max, cur_min = nums[0], nums[0]
+        res = cur_max
+
+        for i in range(1, len(nums)):
+            cur = nums[i]
+            tmp_max = max(cur, cur_max * cur, cur_min * cur)
+            cur_min = min(cur, cur_max * cur, cur_min * cur)
+
+            cur_max = tmp_max
+
+            res = max(cur_max, res)
+        return res
+
+    def findDiagonalOrder(self, nums: List[List[int]]) -> List[int]:
+        """1424 Diagonal Traverse 2
+
+        Given a list of lists of integers, nums, return all elements of nums in diagonal order
+
+        Args:
+            nums:
+
+        Returns:
+
+        """
+        d = len(nums)
+        print(f'Depth: {d}')
+        for i in range(d):
+            pass
+
+    def minDifference(self, nums: List[int]) -> int:
+        """ 1509 Minimum Difference Between Largest and Smallest Value in Three Moves
+
+        Args:
+            nums:
+
+        Returns:
+
+        """
+        moves = 3
+        nums_size = len(nums)
+        # If we can change all of the values to the smallest value, the difference is 0
+        if nums_size - 1 <= moves:
+            return 0
+
+        # If we sort our numbers, we can quickly hold onto our largest and smallest values
+        nums.sort()
+        print(nums)
+
+        # Get our initial difference with no changes
+        min_dif = nums[-1] - nums[0]
+
+        # We have 4 possible changes to consider within a window of 3
+        # Make changes to the beginning and end
+        # Make changes to the first or last two
+        for i in range(4):
+            # As our window shifts, we have a new largest and smallest to calculate difference
+            min_dif = min(min_dif, nums[nums_size - 4 + i] - nums[i])
+        return min_dif
+
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> TreeNode:
+        pass
+
+    def smallestSubsequence(self, s: str) -> str:
+        # STRING PROBLEM
+        # Keep count of all the letters
+        letter_count = collections.Counter(s)
+        # Keep track of letters seen
+        seen_set = set()
+        # Keep track of substring chars
+        char_list = []
+        # For each letter in s
+        for letter in s:
+            # Decrement that letters count
+            letter_count[letter] -= 1
+            # Check to see if we've seen this letter before
+            if letter in seen_set:
+                # Skip if we have
+                continue
+            # While our list isn't empty
+            while char_list:
+                # If correct lexicographic order and count of last letter > 0
+                if char_list[-1] > letter and letter_count[char_list[-1]] > 0:
+                    # Pop off the last letter
+                    last_letter = char_list.pop()
+                    # Remove from seen set
+                    seen_set.remove(last_letter)
+                # Otherwise, break from the while loop
+                else:
+                    break
+            # Add the letter our char list
+            char_list.append(letter)
+            # Mark that letter as seen
+            seen_set.add(letter)
+        return ''.join(char_list)
+
+    def maxOperations(self, nums: List[int], k: int) -> int:
+        # Keep a running count of each number
+        num_count = collections.Counter(nums)
+        # Keep track of operations
+        op_count = 0
+        # Go through each number
+        for n in num_count:
+            # Calculate our target addend
+            target = k - n
+            # If our target is the same as the current number
+            if target == n:
+                # Add to op_count how many operations we completed with this number
+                op_count += num_count[n] // 2
+            # If our target is not the same as our current number
+            else:
+                # Add to op_count if an operation can be performed, otherwise 0
+                op_count += min(num_count[n], num_count[target])
+            # Set the count of the current number to 0 so we don't use it again
+            num_count[n] = 0
+        return op_count
+
+    pathSumCount = 0
+
+    def pathSum(self, root: TreeNode, sum: int) -> int:
+        def dfs(node, target_sum):
+            # DFS traversal through the tree
+            # From each node, we need to check all the sums of its paths
+
+            # Base case
+            if node is None:
+                return
+
+            # What is the sum start from this node
+            cur_sum = 0
+
+            # Check if any path from this node equals sum and add to solution
+            dfsPathSumCheck(node, target_sum, cur_sum)
+            # Go to the next node and try again
+            dfs(node.left, target_sum)
+            dfs(node.right, target_sum)
+
+        def dfsPathSumCheck(node, target_sum, cur_sum):
+            # Base case
+            if node is None:
+                return
+            # What is the current sum
+            cur_sum = node.val + cur_sum
+            # If the current sum is our target, add this to our path count
+            if cur_sum == target_sum:
+                self.pathSumCount += 1
+
+            # Traverse further down path
+            dfsPathSumCheck(node.left, target_sum, cur_sum)
+            dfsPathSumCheck(node.right, target_sum, cur_sum)
+
+        dfs(root, sum)
+        return self.pathSumCount
+
+    def addTwoDigits(self, n):
+        dig = [int(d) for d in str(n)]
+        return dig[0] + dig[1]
+
+    def minDeletions(self, arr):
+        return self.lis(arr, len(arr))
+
+    def lis(self, arr, n):
+        n = len(arr)
+
+        # Declare the list (array) for LIS and
+        # initialize LIS values for all indexes
+        lis = [1] * n
+
+        # Compute optimized LIS values in bottom up manner
+        for i in range(1, n):
+            for j in range(0, i):
+                if arr[i] > arr[j] and lis[i] < lis[j] + 1:
+                    lis[i] = lis[j] + 1
+
+
+        return max(lis)
+
+    def canPermutePalindrome(self, s: str) -> bool:
+        pass
