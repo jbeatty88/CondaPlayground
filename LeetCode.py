@@ -1495,10 +1495,17 @@ class LeetCode:
         return max(lis)
 
     def canPermutePalindrome(self, s: str) -> bool:
-        ''' Palindrome Permutation
+        """ Palindrome Permutation
 
         Given a string, determine if a permutation of the string could
         form a palindrome.
+
+        Steps:
+            1. Count the frequency of each character
+            2. There are only two cases for palindrome:
+                i. Each letter occurs an even number of times
+                ii. Only one letter occurs an odd number of time
+            3. Return True or False accordingly
 
         Args:
             s: (str) The string to check if is palindrome
@@ -1507,5 +1514,109 @@ class LeetCode:
             True: If the string is a palindrome
             False: If the string is not a palindrome
 
-        '''
-        pass
+        """
+        char_freq = collections.Counter(s)
+        num_odd_freq = 0
+        for f in char_freq:
+            if char_freq[f] % 2 != 0 and num_odd_freq > 0:
+                return False
+            elif char_freq[f] % 2 != 0 and num_odd_freq == 0:
+                num_odd_freq += 1
+        return True
+
+    def canPermutePalindrome_fastestSolution(self, s: str) -> bool:
+        """ Palindrome Permutation Fastest Solution on LC
+
+        This is the fastest solution on LC. It was 8ms.
+
+        Args:
+            s: (String) string to check permutations
+
+        Returns: true or false
+
+        """
+        if len(s) < 2:
+            return True
+        elif len(s) == 2:
+            return s[0] == s[-1]
+        s = sorted(s)
+        s += "!"
+        odd_seen = False
+
+        cnt = 1
+        for idx in range(1, len(s)):
+            if s[idx - 1] != s[idx]:
+                if cnt % 2 and odd_seen:
+                    return False
+                elif cnt % 2:
+                    odd_seen = True
+                cnt = 1
+            else:
+                cnt += 1
+        return True
+
+    def isPalindrome(self, s: str) -> bool:
+        """ General palindrome checker for single string
+
+        See Also 6.7.2 of Competitive Programming 4 (pg 359)
+
+        Compare the characters in string s up to its middle
+        character.
+
+        Big O:
+            Time: O(n/2) => O(n)
+
+        Args:
+            s: (str) String to check if is palindrome
+
+        Returns:
+            True: If string is a palindrome
+            False: If string is not a palindrome
+
+        """
+        n = len(s)
+        l, r = 0, len(s) - 1
+        for i in range(n // 2):
+            if s[l + i] != s[r - i]:
+                return False
+        return True
+
+    def canFormArray(self, arr: List[int], pieces: List[List[int]]) -> bool:
+        """ Check Array Formation Through Concatenation
+
+        You are given an array of distinct integers and an array of integer arrays where the integers
+        are distinct. Your goal is to form the array of distinct integers by concatenating the arrays in
+        the array of integer arrays. You are not allowed to reorder the integers in each integer array.
+
+
+
+        Args:
+            arr: (int[]) Array of distinct integers
+            pieces: (int[int[]]) Array of integer arrays
+
+        Returns:
+            True: If it is possible to form the array, arr, from pieces
+            False: Otherwise
+
+        """
+        arr_str = ','.join(map("'{0}'".format, arr))
+        print(arr_str)
+        for a in pieces:
+            a_str = ','.join(map("'{0}'".format, a))
+            if a_str not in arr_str:
+                return False
+        return True
+
+    def canFormArray_fastestSolution(self, arr: List[int], pieces: List[List[int]]) -> bool:
+        """ Check Array Formation Through Concatenation Fastest Solution LC
+
+        24ms
+        """
+        for piece in pieces:
+            try:
+                idx = arr.index(piece[0])
+            except:
+                return False
+            if arr[idx:idx + len(piece)] != piece:
+                return False
+        return True

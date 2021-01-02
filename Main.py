@@ -12,4 +12,4 @@ if __name__ == '__main__':
     # print(aoc.p2_1PasswordPhilosophy())
     # print(lc.findDiagonalOrder([[1,2,3],[4,5,6],[7,8,9]]))
 
-    print(lc.canPermutePalindrome("aab"))
+    print(lc.canFormArray([12], [[1]]))
