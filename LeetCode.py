@@ -646,13 +646,68 @@ class LeetCode:
         return ""
 
     def mergeTwoLists(self, l1: ListNode, l2: ListNode):
-        while l2.next is not None:
-            if l2.val > l1.val:
+        """ 21 Merge Two Sorted Lists
+
+        Merge two sorted linked lists and return it as a sorted list. the list should be made
+        by splicing together the nodes of the first two lists.
+
+        Args:
+            l1: first list
+            l2: second list
+
+        Returns: l1 spliced with l2 and sorted
+
+        """
+        # Store a reference to the head of list (to return)
+        prehead = ListNode(-1)
+        # Keep a pointer to the node we are considering changing it's next node
+        prev = prehead
+        # Iterate through each element of l1 and l2
+        while l1 and l2:
+            # Check for the minimum value between the two current nodes
+            if l1.val <= l2.val:
+                # Point the next to l1
+                prev.next = l1
+                # Move l1 over
                 l1 = l1.next
             else:
-                prevFirstNode = l1
-                l1 = ListNode(l2.val, prevFirstNode.next)
+                # Point the next to l2
+                prev.next = l2
+                # Move l2 over
                 l2 = l2.next
+            # Move prev over
+            prev = prev.next
+        # At most one of l1 and l2 can be non-null here.
+        # Connect the non-null list to the end of the merged list
+        prev.next = l1 or l2
+        return prehead.next
+
+    def mergeTwoLists_FastestSolution(self, l1: ListNode, l2: ListNode):
+        """ 21 Merge Two Sorted Lists Fastest Solution on LC
+
+        16ms submission
+
+        """
+        # Catch cases where one list is None
+        if l1 is None:
+            return l2
+        if l2 is None:
+            return l1
+        # Save the head node to return
+        head = l2 if l2.val <= l1.val else l1
+        while l1 is not None and l2 is not None:
+            # Compare l1 and l2
+            bigger = l1 if l1.val >= l2.val else l2
+            smaller = l1 if bigger is l2 else l2
+            # Find the right spot for the bigger node in the smaller list
+            while smaller.next is not None and smaller.next.val <= bigger.val:
+                smaller = smaller.next
+            # Save the rest of the smaller list
+            l1 = smaller.next
+            # Splice in the bigger node here
+            smaller.next = bigger
+            l2 = smaller.next
+        return head
 
     def rotateString(self, A: str, B: str) -> bool:
         """796 Rotate String
