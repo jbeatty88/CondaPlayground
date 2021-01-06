@@ -1675,3 +1675,44 @@ class LeetCode:
             if arr[idx:idx + len(piece)] != piece:
                 return False
         return True
+
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        """82 Remove Duplicates From Sorted List II
+
+        Given the head of a sorted linked list, delete all nodes that have duplicate numbers, leaving only
+        distinct numbers from the original list. Return the linked list sorted as well.
+
+        Solution Notes:
+            Sentinel Node -> Specifically designated node used with linked lists and trees
+            as a traversal path terminator; this node does not hold or reference any data
+            managed by the data structure; used as an alternative to NULL; pseudo-head/tail
+
+            Sentinel Node can help use avoid an edge case where the head node needs to be
+            deleted by created a pseudo-head.
+
+            We can determine if the node is a duplicate by comparing its value to the node
+            after and then deleting it using pointer manipulations.
+
+            The first node in the duplicates sublist should be removed as well; this means
+            that we need to keep track of the predecessor of duplicates sublist.
+
+            Having the predecessor, we can now skip the entire duplicate sublist and point
+            straight to the node after the sublist we skipped.
+
+        Args:
+            head: head of a sorted linked list
+
+        Returns: linked list with duplicates removed
+
+        """
+        pseudo_head = ListNode(-1, head)
+        prev = pseudo_head
+        while head:
+            if head.next and head.val == head.next.val:
+                while head.next and head.val == head.next.val:
+                    head = head.next
+                prev.next = head.next
+            else:
+                prev = prev.next
+            head = head.next
+        return pseudo_head.next
