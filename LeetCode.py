@@ -1716,3 +1716,26 @@ class LeetCode:
                 prev = prev.next
             head = head.next
         return pseudo_head.next
+
+    def minCost(self, costs: List[List[int]]) -> int:
+        """
+        There is a row of 'n' houses, where each house can be painted one of three colors:
+            - red
+            - blue
+            - green
+        The cost of painting each house with a certain color is different.
+        You have to paint all the houses such that no two adjacent houses have the same color.
+
+        Cost of painting each house with a certain color is represented by a n x 3 cost matrix 'costs'
+
+        For example, costs[0][0] is the cost of painting house 0 with the color red; costs[1][2]
+        is the cost of painting house 1 with color green.
+
+        Return the minimum cost to paint all houses.
+
+        Args:
+            costs: n x 3 matrix of costs
+
+        Returns minimum cost to paint all houses.
+        """
+        pass
