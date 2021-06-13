@@ -1738,4 +1738,110 @@ class LeetCode:
 
         Returns minimum cost to paint all houses.
         """
-        pass
+        # Need to verify that the next min is not the same idx
+        min_cost = 0
+        # Set prev min idx to INF or -1
+        prev_min_idx = -1
+        # Find min and idx
+        for c in costs:
+            min_idx = c.index(min(c))
+            if min_idx != prev_min_idx:
+                print(min_idx)
+                prev_min_idx = c.index(min(c))
+                min_cost += min(c)
+            else:
+                # If same idx, need to somehow tag the invalid idx and get the next min
+                c[min_idx] = math.inf
+                # Get new min idx
+                min_idx = c.index(min(c))
+                print(min_idx)
+                prev_min_idx = min_idx
+                min_cost += min(c)
+
+        print(min_cost)
+
+    def reverseInteger(self, x: int, use_my_solution: bool) -> int:
+        """
+            Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value
+            to go outside the signed 32-bit integer range [-231, 231 - 1], then return 0.
+
+        Args:
+            use_my_solution: (bool) use my own solution or use the fastest one on LC
+            x: the integer to reverse
+        """
+        if use_my_solution:
+            # My solution START
+            is_negative = False
+            # 32-bit signed integer bounds
+
+            # signed32_lb = -pow(2, 31)
+            # signed32_ub = pow(2, 31) - 1
+
+            # Changing from pow() to '**' improves by 8ms
+            signed32_lb = - (2 ** 31)
+            signed32_ub = (2 ** 31) - 1
+
+            # Check if negative
+            x_list = list(str(x))
+            if x < 0:
+                # Pop the negative sign
+                x_list.pop(0)
+                # Flag as negative
+                is_negative = True
+
+            # Reverse digits
+            x_list.reverse()
+            r = -int(''.join(x_list)) if is_negative else int(''.join(x_list))
+            print(r)
+            return r if signed32_ub > r > signed32_lb else 0
+            # My solution END
+        else:
+            # Fastest Solution START; 12ms submission
+            # Here he is storing the bounds for a 32-bit signed
+            limit1 = -(2 ** 31)
+            limit2 = (2 ** 31) - 1
+            # Initial check if number is out of bounds
+            if not (limit1 <= x <= limit2): return 0
+            # Here he converts x to a string, reverses it, and strips the '-' sign
+            # [range_left : range_right : direction]
+            reverse = str(x)[::-1].strip('-')
+            print(f'Reverse: {reverse}')
+            # Case: original number ended with a 0
+            if reverse[0] == '0':
+                # If reverse is bigger than a single digit
+                if len(reverse) != 1:
+                    # Start one after the 0
+                    reverse = reverse[1:]
+            # Case: positive x
+            if x > 0:
+                out = int(reverse)
+                return out if limit1 <= out <= limit2 else 0
+            # Case: negative x
+            if x <= 0:
+                out = 0 - int(reverse)
+                return out if limit1 <= out <= limit2 else 0
+            # Fastest Solution END
+
+    def isPalindrome(self, x: int, use_my_solution: bool) -> bool:
+        """9. Palindrome Number
+
+        Given an integer x, return true if x is palindrome integer.
+        An integer is a palindrome when it reads the same backwards as forward
+
+        Args:
+            x: (int) integer to check if palindrome
+        """
+
+        if use_my_solution:
+            # My solutions: 60ms 14.2 MB
+            return str(x)[::-1] == str(x)
+        else:
+            if x < 0:
+                return False
+
+            inputNum = x
+            newNum = 0
+            while x > 0:
+                newNum = newNum * 10 + x % 10
+                x = x // 10
+            return newNum == inputNum
